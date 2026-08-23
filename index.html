@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Нагадування</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef3f1;
+    --ink:#152420;
+    --ink-soft:#5c6d68;
+    --ink-faint:#8b9995;
+    --line:#dde6e2;
+    --card:#ffffff;
+    --teal:#1f6f63;
+    --teal-deep:#123f37;
+    --teal-mist:#e2efec;
+    --gold:#c8933c;
+    --gold-mist:#f8eed9;
+    --gold-deep:#8f6420;
+    --purple:#7a5fb0;
+    --purple-mist:#ece6f7;
+    --grey:#8b9995;
+    --grey-mist:#eef1f0;
+    --danger:#b5473a;
+    --shadow:0 1px 2px rgba(21,36,32,.04), 0 8px 24px -12px rgba(21,36,32,.18);
+  }
+  body[data-theme="dark"]{
+    --bg:#101815;
+    --ink:#eef3f1;
+    --ink-soft:#a7b5b0;
+    --ink-faint:#6e7d78;
+    --line:#233029;
+    --card:#182420;
+    --teal:#3fa593;
+    --teal-deep:#8fd6c7;
+    --teal-mist:#1c332d;
+    --gold:#e0ad5c;
+    --gold-mist:#332a17;
+    --gold-deep:#e9c17d;
+    --purple:#a48ad6;
+    --purple-mist:#2a2438;
+    --grey:#7c8b86;
+    --grey-mist:#1e2825;
+    --shadow:0 1px 2px rgba(0,0,0,.2), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0;
+    background:var(--bg);
+    background-image:radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--teal) 8%, var(--bg)) 0%, var(--bg) 45%);
+    color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background .2s, color .2s;
+  }
+
+  header{
+    padding:26px 20px 16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+  }
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--teal);
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  h1{
+    margin:0;
+    font-family:'Fraunces',serif;
+    font-size:28px;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  .date{margin-top:6px; font-size:13px; color:var(--ink-soft); text-transform:capitalize;}
+
+  .head-right{display:flex; align-items:center; gap:12px;}
+  .theme-btn{
+    width:34px;height:34px; border-radius:50%;
+    border:1.5px solid var(--line); background:var(--card);
+    display:flex;align-items:center;justify-content:center; cursor:pointer;
+  }
+  .theme-btn svg{width:16px;height:16px; stroke:var(--ink-soft); fill:none; stroke-width:2;}
+
+  .ring-wrap{position:relative; width:54px; height:54px; flex:0 0 auto;}
+  .ring-wrap svg.ring{transform:rotate(-90deg); width:54px; height:54px;}
+  .ring-bg{fill:none; stroke:var(--line); stroke-width:5;}
+  .ring-fg{fill:none; stroke:var(--teal); stroke-width:5; stroke-linecap:round; transition:stroke-dashoffset .5s ease;}
+  .ring-label{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700; color:var(--teal-deep);}
+
+  /* weekly stats */
+  .stats{
+    margin:6px 20px 4px;
+    background:var(--card);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    padding:14px 16px;
+    display:flex;
+    align-items:flex-end;
+    gap:7px;
+  }
+  .stats .bar-col{flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;}
+  .stats .bar-track{width:100%; height:38px; background:var(--grey-mist); border-radius:6px; display:flex; align-items:flex-end; overflow:hidden;}
+  .stats .bar-fill{width:100%; background:var(--teal); border-radius:6px; transition:height .4s ease;}
+  .stats .bar-day{font-size:10px; color:var(--ink-faint); font-weight:600; text-transform:lowercase;}
+  .stats .bar-col.today .bar-day{color:var(--teal-deep); font-weight:800;}
+
+  .overdue{font-size:10.5px; font-weight:800; color:#fff; background:var(--danger); padding:2px 7px; border-radius:20px; letter-spacing:.01em;}
+  li.overdue-item{border-left-color:var(--danger);}
+
+  .quick-row{margin:14px 20px 0; display:flex; gap:8px; overflow-x:auto; padding-bottom:2px;}
+  .quick-row::-webkit-scrollbar{display:none;}
+  .quick-chip{
+    flex:0 0 auto;
+    font-size:12.5px; font-weight:600;
+    padding:9px 13px;
+    border-radius:20px;
+    border:1.5px solid var(--line);
+    background:var(--card);
+    color:var(--ink-soft);
+    white-space:nowrap;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .quick-chip:active{background:var(--teal-mist); border-color:var(--teal); color:var(--teal-deep);}
+
+  .toast{
+    position:fixed;
+    left:50%; bottom:24px;
+    transform:translateX(-50%) translateY(80px);
+    background:var(--ink);
+    color:var(--bg);
+    padding:12px 14px 12px 18px;
+    border-radius:12px;
+    display:flex; align-items:center; gap:14px;
+    font-size:13.5px;
+    box-shadow:0 12px 30px -8px rgba(0,0,0,.4);
+    opacity:0;
+    transition:transform .25s ease, opacity .25s ease;
+    z-index:50;
+    max-width:88vw;
+  }
+  .toast.show{transform:translateX(-50%) translateY(0); opacity:1;}
+  .toast button{
+    background:none; border:none; color:var(--gold); font-weight:700; font-size:13.5px; cursor:pointer; font-family:inherit; flex:0 0 auto;
+  }
+
+  .search-row{margin:14px 20px 0; position:relative;}
+  .search-row svg{position:absolute; left:13px; top:50%; transform:translateY(-50%); width:15px; height:15px; stroke:var(--ink-faint); fill:none; stroke-width:2;}
+  .search-row input{
+    width:100%;
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:11px 14px 11px 36px;
+    font-size:14.5px;
+    font-family:inherit;
+    background:var(--card);
+    color:var(--ink);
+  }
+  .search-row input:focus{outline:none; border-color:var(--teal);}
+
+  .add-card{
+    margin:14px 18px 4px;
+    background:var(--card);
+    border-radius:18px;
+    box-shadow:var(--shadow);
+    padding:16px 16px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .add-row{display:flex; gap:8px;}
+  input[type="text"]{
+    flex:1;
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:13px 14px;
+    font-size:16px;
+    font-family:inherit;
+    background:var(--bg);
+    color:var(--ink);
+    min-width:0;
+  }
+  input[type="text"]:focus{outline:none; border-color:var(--teal);}
+  input[type="time"]{
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:13px 8px;
+    font-size:14.5px;
+    font-family:inherit;
+    background:var(--bg);
+    color:var(--ink);
+    width:104px;
+  }
+  input[type="time"]:focus{outline:none; border-color:var(--teal);}
+
+  .mic-btn{
+    flex:0 0 auto;
+    width:46px; height:46px;
+    border-radius:12px;
+    border:1.5px solid var(--line);
+    background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .mic-btn svg{width:17px;height:17px; stroke:var(--ink-soft); fill:none; stroke-width:2;}
+  .mic-btn.on{background:var(--danger); border-color:var(--danger);}
+  .mic-btn.on svg{stroke:#fff;}
+
+  textarea{
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:11px 13px;
+    font-size:14px;
+    font-family:inherit;
+    background:var(--bg);
+    color:var(--ink);
+    resize:none;
+    min-height:52px;
+  }
+  textarea:focus{outline:none; border-color:var(--teal);}
+
+  .row2{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .chip-btn{
+    display:flex; align-items:center; gap:6px;
+    padding:10px 12px;
+    border-radius:11px;
+    border:1.5px solid var(--line);
+    background:var(--bg);
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink-soft);
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .chip-btn svg{width:14px;height:14px; stroke:var(--ink-faint); fill:none; stroke-width:2;}
+  .chip-btn.on{background:var(--gold-mist); border-color:var(--gold); color:var(--gold-deep);}
+  .chip-btn.on svg{stroke:var(--gold-deep); fill:var(--gold-mist);}
+  .chip-btn.repeat.on{background:var(--purple-mist); border-color:var(--purple); color:var(--purple);}
+  .chip-btn.repeat.on svg{stroke:var(--purple);}
+
+  select#category{
+    padding:10px 10px;
+    border-radius:11px;
+    border:1.5px solid var(--line);
+    background:var(--bg);
+    color:var(--ink);
+    font-family:inherit;
+    font-size:13px;
+    font-weight:600;
+  }
+
+  .add-btn{
+    margin-left:auto;
+    flex:0 0 auto;
+    background:var(--teal-deep);
+    color:#fff;
+    font-weight:700;
+    font-size:14px;
+    font-family:inherit;
+    border:none;
+    border-radius:12px;
+    padding:0 18px;
+    height:42px;
+    display:flex; align-items:center; gap:6px;
+    cursor:pointer;
+  }
+  body[data-theme="dark"] .add-btn{color:#0f1a17;}
+  .add-btn:active{transform:scale(.97);}
+  .add-btn svg{width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:2.5;}
+
+  .toolbar{display:flex; align-items:center; justify-content:space-between; margin:18px 20px 0;}
+  .sort-btn{
+    display:flex; align-items:center; gap:6px;
+    font-size:12.5px; font-weight:700; color:var(--ink-soft);
+    background:none; border:none; cursor:pointer; font-family:inherit;
+  }
+  .sort-btn svg{width:13px;height:13px; stroke:var(--ink-soft); fill:none; stroke-width:2.4;}
+  .archive-btn{font-size:12.5px; font-weight:700; color:var(--teal); background:none; border:none; cursor:pointer; font-family:inherit;}
+
+  .banner{
+    margin:10px 20px 0;
+    background:var(--gold-mist);
+    border:1px solid var(--gold);
+    color:var(--gold-deep);
+    border-radius:14px;
+    padding:12px 14px;
+    font-size:13px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .banner button{background:none; border:none; color:var(--gold-deep); font-size:16px; cursor:pointer; flex:0 0 auto; font-family:inherit;}
+
+  .streak{
+    display:flex; align-items:center; gap:4px;
+    font-size:11px; font-weight:700; color:var(--ink-soft);
+    margin-top:5px;
+  }
+  .streak svg{width:12px; height:12px; stroke:var(--gold-deep); fill:var(--gold-mist); stroke-width:2;}
+
+  .filter-row{margin:10px 20px 0; display:flex; gap:7px; overflow-x:auto; padding-bottom:2px;}
+  .filter-row::-webkit-scrollbar{display:none;}
+  .filter-chip{
+    flex:0 0 auto;
+    display:flex; align-items:center; gap:5px;
+    font-size:12px; font-weight:700;
+    padding:7px 11px;
+    border-radius:20px;
+    border:1.5px solid var(--line);
+    background:var(--card);
+    color:var(--ink-soft);
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .filter-chip .dot{width:6px;height:6px;border-radius:50%;}
+  .filter-chip.active{background:var(--teal-mist); border-color:var(--teal); color:var(--teal-deep);}
+
+  .toolbar{display:flex; align-items:center; justify-content:space-between; margin:18px 20px 0; gap:10px; flex-wrap:wrap;}
+  .toolbar-right{display:flex; align-items:center; gap:14px;}
+  .sort-btn{
+    display:flex; align-items:center; gap:6px;
+    font-size:12.5px; font-weight:700; color:var(--ink-soft);
+    background:none; border:none; cursor:pointer; font-family:inherit;
+  }
+  .sort-btn svg{width:13px;height:13px; stroke:var(--ink-soft); fill:none; stroke-width:2.4;}
+  .archive-btn, .clear-btn, .export-btn{font-size:12.5px; font-weight:700; color:var(--teal); background:none; border:none; cursor:pointer; font-family:inherit;}
+  .clear-btn{color:var(--danger);}
+
+  .text-edit{
+    font-size:15px; font-weight:500; color:var(--ink); font-family:inherit;
+    border:1.5px solid var(--teal); border-radius:8px; padding:5px 8px; margin-top:2px;
+    background:var(--bg); width:100%;
+  }
+
+  .item-actions{display:flex; flex-direction:column; gap:6px; align-items:center;}
+  .mini-btn{
+    flex:0 0 auto; width:26px;height:26px; margin-top:1px;
+    border-radius:8px; background:transparent; border:none;
+    color:var(--ink-faint); font-size:13px;
+    display:flex;align-items:center;justify-content:center; cursor:pointer;
+  }
+  .mini-btn:active{background:var(--teal-mist); color:var(--teal-deep);}
+  .mini-btn svg{width:13px;height:13px; stroke:currentColor; fill:none; stroke-width:2.2;}
+
+  .view-tabs{display:flex; gap:8px; margin:16px 18px 0;}
+  .view-tab{
+    flex:1; text-align:center; padding:11px; border-radius:12px;
+    background:var(--card); border:1.5px solid var(--line);
+    font-weight:700; font-size:13.5px; color:var(--ink-soft);
+    cursor:pointer; font-family:inherit;
+  }
+  .view-tab.active{background:var(--teal-deep); border-color:var(--teal-deep); color:#fff;}
+
+  .week-grid{display:flex; flex-direction:column; gap:10px;}
+  .day-col{background:var(--card); border-radius:16px; box-shadow:var(--shadow); padding:14px 14px 12px;}
+  .day-col.is-today{border:1.5px solid var(--teal);}
+  .day-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px;}
+  .day-name{font-size:13.5px; font-weight:800; color:var(--ink); text-transform:capitalize;}
+  .day-col.is-today .day-name{color:var(--teal-deep);}
+  .day-date{font-size:11px; color:var(--ink-faint); font-weight:600;}
+  .day-empty{font-size:12.5px; color:var(--ink-faint); padding:4px 0;}
+  .day-item{
+    display:flex; align-items:center; gap:9px; padding:8px 0;
+    border-top:1px solid var(--line);
+  }
+  .day-item:first-of-type{border-top:none;}
+  .day-item .dot{width:6px;height:6px;border-radius:50%; flex:0 0 auto;}
+  .day-item .dtext{flex:1; font-size:13.5px; font-weight:500; min-width:0; word-break:break-word;}
+  .day-item.done .dtext{text-decoration:line-through; color:var(--ink-faint);}
+  .day-item .dtime{font-size:11px; font-weight:700; color:var(--teal-deep); flex:0 0 auto;}
+  .day-item .dbell{width:11px;height:11px; stroke:var(--gold-deep); fill:none; stroke-width:2.4; flex:0 0 auto;}
+
+  input[type="date"].date-field{
+    border:1.5px solid var(--line); border-radius:12px; padding:13px 8px;
+    font-size:13.5px; font-family:inherit; background:var(--bg); color:var(--ink); width:128px;
+  }
+  input[type="date"].date-field:focus{outline:none; border-color:var(--teal);}
+
+  main{padding:12px 18px 60px;}
+  .empty{text-align:center; color:var(--ink-faint); padding:40px 10px; font-size:14.5px; line-height:1.6;}
+  .empty .big{font-size:15px; color:var(--ink-soft); font-weight:600; display:block; margin-bottom:4px;}
+
+  ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px;}
+  li{
+    position:relative;
+    display:flex; align-items:flex-start; gap:12px;
+    background:var(--card);
+    border-radius:14px;
+    padding:13px 14px;
+    box-shadow:var(--shadow);
+    border-left:3px solid transparent;
+    touch-action:pan-y;
+    transition:transform .18s;
+  }
+  li.critical:not(.done){border-left-color:var(--gold);}
+  li.dragging{transition:none;}
+
+  .check{
+    width:24px; height:24px; margin-top:1px;
+    flex:0 0 auto;
+    border-radius:50%;
+    border:2px solid var(--teal);
+    background:transparent;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    transition:all .18s;
+  }
+  .check.done{background:var(--teal); border-color:var(--teal); transform:scale(1.04);}
+  .check svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:3;display:none;}
+  .check.done svg{display:block;}
+  body[data-theme="dark"] .check.done svg{stroke:#0f1a17;}
+
+  .body{flex:1; min-width:0;}
+  .meta{display:flex; align-items:center; gap:7px; flex-wrap:wrap;}
+  .time{font-size:11.5px; font-weight:700; color:var(--teal-deep); letter-spacing:.02em;}
+  .time.none{color:var(--ink-faint); font-weight:600;}
+  .bell{width:12px; height:12px; stroke:var(--gold-deep); fill:none; stroke-width:2.4;}
+  .repeat-ic{width:12px; height:12px; stroke:var(--purple); fill:none; stroke-width:2.4;}
+  .dot{width:7px; height:7px; border-radius:50%; flex:0 0 auto;}
+  .cat-label{font-size:10.5px; font-weight:700; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.04em;}
+  .text{font-size:15px; margin-top:3px; word-break:break-word; color:var(--ink); font-weight:500;}
+  .note{font-size:12.5px; margin-top:3px; color:var(--ink-soft); word-break:break-word;}
+  li.done .text{color:var(--ink-faint); text-decoration:line-through;}
+  li.done .time{color:var(--ink-faint);}
+  li.done{border-left-color:transparent;}
+
+  .del{
+    flex:0 0 auto; width:28px;height:28px; margin-top:1px;
+    border-radius:9px; background:transparent; border:none;
+    color:var(--danger); font-size:16px;
+    display:flex;align-items:center;justify-content:center; cursor:pointer;
+  }
+  .del:active{background:color-mix(in srgb, var(--danger) 12%, transparent);}
+
+  .section-label{font-size:11.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-faint); font-weight:700; margin:20px 3px 9px;}
+
+  .footer-note{
+    margin:28px 4px 0; font-size:12.5px; color:var(--ink-soft); line-height:1.55;
+    border-top:1px solid var(--line); padding-top:16px; display:flex; gap:9px;
+  }
+  .footer-note svg{flex:0 0 auto; width:16px; height:16px; stroke:var(--gold-deep); fill:none; stroke-width:2; margin-top:1px;}
+  .hidden{display:none !important;}
+</style>
+<meta name="theme-color" content="#123f37">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Нагадування">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="eyebrow">Тільки для вас</div>
+    <h1>Нагадування</h1>
+    <div class="date" id="today"></div>
+    <div class="streak" id="streak"></div>
+  </div>
+  <div class="head-right">
+    <button class="theme-btn" id="themeBtn">
+      <svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>
+    </button>
+    <div class="ring-wrap">
+      <svg class="ring" viewBox="0 0 54 54">
+        <circle class="ring-bg" cx="27" cy="27" r="23"></circle>
+        <circle class="ring-fg" id="ringFg" cx="27" cy="27" r="23" stroke-dasharray="144.5" stroke-dashoffset="144.5"></circle>
+      </svg>
+      <div class="ring-label" id="ringLabel">0/0</div>
+    </div>
+  </div>
+</header>
+
+<div class="view-tabs">
+  <button class="view-tab active" id="tabToday">Сьогодні</button>
+  <button class="view-tab" id="tabWeek">Тиждень</button>
+</div>
+
+<div id="bannerWrap"></div>
+
+<div id="todayExtras">
+  <div class="stats" id="stats"></div>
+  <div class="filter-row" id="filterRow"></div>
+  <div class="quick-row" id="quickRow"></div>
+  <div class="search-row">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.6" y2="16.6"/></svg>
+    <input type="text" id="search" placeholder="Пошук…">
+  </div>
+</div>
+
+<div class="add-card">
+  <div class="add-row">
+    <input type="text" id="text" placeholder="Що зробити?" maxlength="200">
+    <button class="mic-btn" id="micBtn" title="Голосове введення">
+      <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 003-3V6a3 3 0 00-6 0v6a3 3 0 003 3z"/><path d="M19 11a7 7 0 01-14 0"/><line x1="12" y1="18" x2="12" y2="22"/></svg>
+    </button>
+    <input type="time" id="time">
+  </div>
+  <div class="row2">
+    <input type="date" id="dateField" class="date-field">
+    <span style="font-size:12px; color:var(--ink-faint); font-weight:600;">Порожньо = сьогодні</span>
+  </div>
+  <textarea id="note" placeholder="Деталі (необов'язково)" rows="1"></textarea>
+  <div class="row2">
+    <select id="category">
+      <option value="farm">🦆 Ферма</option>
+      <option value="personal">🏡 Особисте</option>
+      <option value="work">💼 Робота</option>
+      <option value="other">✦ Інше</option>
+    </select>
+    <button class="chip-btn" id="critBtn">
+      <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <span id="critLabel">Критично</span>
+    </button>
+    <button class="chip-btn repeat" id="repeatBtn">
+      <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+      <span id="repeatLabel">Щодня</span>
+    </button>
+    <button class="add-btn" id="addBtn">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Додати
+    </button>
+  </div>
+</div>
+
+<div id="todayView">
+  <div class="toolbar">
+    <button class="sort-btn" id="sortBtn">
+      <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/></svg>
+      <span id="sortLabel">За часом</span>
+    </button>
+    <div class="toolbar-right">
+      <button class="export-btn" id="exportBtn">Копіювати список</button>
+      <button class="clear-btn" id="clearBtn">Очистити виконане</button>
+      <button class="archive-btn" id="archiveBtn">Архів</button>
+    </div>
+  </div>
+
+  <main>
+    <div id="listWrap"></div>
+  </main>
+</div>
+
+<div id="weekView" class="hidden">
+  <main>
+    <div class="week-grid" id="weekGrid"></div>
+  </main>
+</div>
+
+<div class="footer-note">
+  <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+  <div>Позначка «критично» лише виділяє пункт золотим. Щоб він реально задзвонив у потрібний час, скажіть Клоду в чаті час і текст — буде поставлено справжній будильник.</div>
+</div>
+
+<div class="toast" id="toast">
+  <span id="toastText">Видалено</span>
+  <button id="undoBtn">Скасувати</button>
+</div>
+
+<script>
+/* Шар збереження: у Клоді використовує window.storage,
+   на телефоні (встановлений додаток) — localStorage. */
+if (!window.storage) {
+  window.storage = {
+    async get(key){
+      const v = localStorage.getItem(key);
+      if (v === null) throw new Error('key not found: ' + key);
+      return { key, value: v, shared: false };
+    },
+    async set(key, value){
+      localStorage.setItem(key, String(value));
+      return { key, value, shared: false };
+    },
+    async delete(key){
+      localStorage.removeItem(key);
+      return { key, deleted: true, shared: false };
+    },
+    async list(prefix){
+      const keys = [];
+      for (let i = 0; i < localStorage.length; i++){
+        const k = localStorage.key(i);
+        if (!prefix || k.startsWith(prefix)) keys.push(k);
+      }
+      return { keys, prefix: prefix || '', shared: false };
+    }
+  };
+}
+</script>
+<script>
+const ITEMS_KEY = 'reminders';
+const META_KEY = 'meta';
+let items = [];
+let meta = { theme:'light', sort:'time', lastOpenDate:'', showArchive:false };
+let criticalOn = false, repeatOn = false;
+
+const todayEl = document.getElementById('today');
+const listWrap = document.getElementById('listWrap');
+const textInput = document.getElementById('text');
+const timeInput = document.getElementById('time');
+const noteInput = document.getElementById('note');
+const categorySel = document.getElementById('category');
+const addBtn = document.getElementById('addBtn');
+const critBtn = document.getElementById('critBtn');
+const critLabel = document.getElementById('critLabel');
+const repeatBtn = document.getElementById('repeatBtn');
+const repeatLabel = document.getElementById('repeatLabel');
+const micBtn = document.getElementById('micBtn');
+const searchInput = document.getElementById('search');
+const sortBtn = document.getElementById('sortBtn');
+const sortLabel = document.getElementById('sortLabel');
+const archiveBtn = document.getElementById('archiveBtn');
+const clearBtn = document.getElementById('clearBtn');
+const exportBtn = document.getElementById('exportBtn');
+const bannerWrap = document.getElementById('bannerWrap');
+const filterRow = document.getElementById('filterRow');
+const streakEl = document.getElementById('streak');
+const themeBtn = document.getElementById('themeBtn');
+let filterCategory = null;
+let bannerDismissed = false;
+const ringFg = document.getElementById('ringFg');
+const ringLabel = document.getElementById('ringLabel');
+const statsEl = document.getElementById('stats');
+const CIRC = 144.5;
+
+const dateField = document.getElementById('dateField');
+const tabToday = document.getElementById('tabToday');
+const tabWeek = document.getElementById('tabWeek');
+const todayExtras = document.getElementById('todayExtras');
+const todayView = document.getElementById('todayView');
+const weekView = document.getElementById('weekView');
+const weekGrid = document.getElementById('weekGrid');
+const DAY_NAMES = ['неділя','понеділок','вівторок','середа','четвер','пʼятниця','субота'];
+
+const CATS = {
+  farm:{label:'Ферма', color:'var(--teal)'},
+  personal:{label:'Особисте', color:'var(--gold)'},
+  work:{label:'Робота', color:'var(--purple)'},
+  other:{label:'Інше', color:'var(--grey)'}
+};
+
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+function fmtDate(){
+  return new Date().toLocaleDateString('uk-UA', { weekday:'long', day:'numeric', month:'long' });
+}
+todayEl.textContent = fmtDate();
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+async function load(){
+  try{
+    const [r1, r2] = await Promise.allSettled([
+      window.storage.get(ITEMS_KEY, false),
+      window.storage.get(META_KEY, false)
+    ]);
+    items = (r1.status==='fulfilled' && r1.value && r1.value.value) ? JSON.parse(r1.value.value) : [];
+    if(r2.status==='fulfilled' && r2.value && r2.value.value){
+      meta = Object.assign(meta, JSON.parse(r2.value.value));
+    }
+  }catch(e){ items = []; }
+
+  applyTheme();
+  handleDailyReset();
+  renderQuickChips();
+  if(meta.view === 'week'){
+    tabWeek.classList.add('active'); tabToday.classList.remove('active');
+    todayExtras.classList.add('hidden'); todayView.classList.add('hidden'); weekView.classList.remove('hidden');
+    renderWeek();
+  }
+  render();
+}
+
+async function saveItems(){
+  try{ await window.storage.set(ITEMS_KEY, JSON.stringify(items), false); }
+  catch(e){ console.error('Storage error', e); }
+}
+async function saveMeta(){
+  try{ await window.storage.set(META_KEY, JSON.stringify(meta), false); }
+  catch(e){ console.error('Storage error', e); }
+}
+
+function handleDailyReset(){
+  const t = todayStr();
+  let changed = false;
+  items.forEach(it => {
+    if(!it.createdAt){ it.createdAt = t; changed = true; }
+    if(!it.date){ it.date = it.createdAt; changed = true; }
+  });
+  if(meta.lastOpenDate !== t){
+    items.forEach(it => {
+      if(it.repeat && it.done){
+        it.done = false;
+      }
+    });
+    meta.lastOpenDate = t;
+    saveMeta();
+    changed = true;
+  }
+  if(changed) saveItems();
+}
+
+function daysOverdue(item){
+  if(item.done || item.repeat) return 0;
+  const base = item.date || item.createdAt;
+  if(!base) return 0;
+  const created = new Date(base + 'T00:00:00');
+  const now = new Date(todayStr() + 'T00:00:00');
+  const diff = Math.round((now - created) / 86400000);
+  return diff > 0 ? diff : 0;
+}
+
+tabToday.onclick = () => {
+  tabToday.classList.add('active'); tabWeek.classList.remove('active');
+  todayExtras.classList.remove('hidden'); todayView.classList.remove('hidden'); weekView.classList.add('hidden');
+  meta.view = 'today'; saveMeta();
+};
+tabWeek.onclick = () => {
+  tabWeek.classList.add('active'); tabToday.classList.remove('active');
+  todayExtras.classList.add('hidden'); todayView.classList.add('hidden'); weekView.classList.remove('hidden');
+  meta.view = 'week'; saveMeta();
+  renderWeek();
+};
+
+function mondayOfThisWeek(){
+  const d = new Date();
+  const day = d.getDay();
+  const diff = (day === 0 ? -6 : 1 - day);
+  d.setDate(d.getDate() + diff);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function renderWeek(){
+  weekGrid.innerHTML = '';
+  const monday = mondayOfThisWeek();
+  const t = todayStr();
+
+  for(let i=0;i<7;i++){
+    const d = new Date(monday);
+    d.setDate(monday.getDate()+i);
+    const ds = d.toISOString().slice(0,10);
+
+    const col = document.createElement('div');
+    col.className = 'day-col' + (ds === t ? ' is-today' : '');
+
+    const head = document.createElement('div');
+    head.className = 'day-head';
+    head.innerHTML = `<span class="day-name">${DAY_NAMES[d.getDay()]}</span><span class="day-date">${d.toLocaleDateString('uk-UA',{day:'numeric',month:'short'})}</span>`;
+    col.appendChild(head);
+
+    const dayItems = items.filter(it => !it.archived && (it.date || it.createdAt) === ds)
+      .sort((a,b) => (a.time||'99:99').localeCompare(b.time||'99:99'));
+
+    if(dayItems.length === 0){
+      const empty = document.createElement('div');
+      empty.className = 'day-empty';
+      empty.textContent = '—';
+      col.appendChild(empty);
+    } else {
+      dayItems.forEach(it => {
+        const row = document.createElement('div');
+        row.className = 'day-item' + (it.done ? ' done' : '');
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        dot.style.background = CATS[it.category]?.color || CATS.other.color;
+        row.appendChild(dot);
+        if(it.time){
+          const tm = document.createElement('div');
+          tm.className = 'dtime';
+          tm.textContent = it.time;
+          row.appendChild(tm);
+        }
+        const txt = document.createElement('div');
+        txt.className = 'dtext';
+        txt.textContent = it.text;
+        row.appendChild(txt);
+        if(it.critical && !it.done){
+          row.insertAdjacentHTML('beforeend', '<svg class="dbell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>');
+        }
+        col.appendChild(row);
+      });
+    }
+    weekGrid.appendChild(col);
+  }
+}
+
+function applyTheme(){
+  document.body.setAttribute('data-theme', meta.theme);
+}
+
+themeBtn.onclick = () => {
+  meta.theme = meta.theme === 'dark' ? 'light' : 'dark';
+  applyTheme();
+  saveMeta();
+};
+
+function updateRing(){
+  const todays = items.filter(i => !i.archived);
+  const total = todays.length;
+  const done = todays.filter(i => i.done).length;
+  ringLabel.textContent = done + '/' + total;
+  const pct = total ? done/total : 0;
+  ringFg.setAttribute('stroke-dashoffset', CIRC - pct*CIRC);
+}
+
+function renderStats(){
+  const days = [];
+  for(let i=6;i>=0;i--){
+    const d = new Date();
+    d.setDate(d.getDate()-i);
+    days.push(d);
+  }
+  const counts = days.map(d => {
+    const ds = d.toISOString().slice(0,10);
+    return items.filter(it => it.completedAt && it.completedAt.slice(0,10) === ds).length;
+  });
+  const max = Math.max(1, ...counts);
+  const labels = ['нд','пн','вт','ср','чт','пт','сб'];
+  statsEl.innerHTML = '';
+  days.forEach((d,i) => {
+    const col = document.createElement('div');
+    col.className = 'bar-col' + (i===6 ? ' today' : '');
+    const track = document.createElement('div');
+    track.className = 'bar-track';
+    const fill = document.createElement('div');
+    fill.className = 'bar-fill';
+    fill.style.height = (counts[i]/max*100) + '%';
+    track.appendChild(fill);
+    const lab = document.createElement('div');
+    lab.className = 'bar-day';
+    lab.textContent = labels[d.getDay()];
+    col.appendChild(track);
+    col.appendChild(lab);
+    statsEl.appendChild(col);
+  });
+}
+
+function renderFilterRow(){
+  filterRow.innerHTML = '';
+  const allChip = document.createElement('button');
+  allChip.className = 'filter-chip' + (filterCategory === null ? ' active' : '');
+  allChip.textContent = 'Усі';
+  allChip.onclick = () => { filterCategory = null; render(); };
+  filterRow.appendChild(allChip);
+
+  Object.keys(CATS).forEach(key => {
+    const chip = document.createElement('button');
+    chip.className = 'filter-chip' + (filterCategory === key ? ' active' : '');
+    chip.innerHTML = `<span class="dot" style="background:${CATS[key].color}"></span>` + CATS[key].label;
+    chip.onclick = () => { filterCategory = (filterCategory === key ? null : key); render(); };
+    filterRow.appendChild(chip);
+  });
+}
+
+function computeStreak(){
+  let streak = 0;
+  for(let i=0;;i++){
+    const d = new Date();
+    d.setDate(d.getDate()-i);
+    const ds = d.toISOString().slice(0,10);
+    const hasCompleted = items.some(it => it.completedAt && it.completedAt.slice(0,10) === ds);
+    if(hasCompleted){ streak++; } else { break; }
+  }
+  return streak;
+}
+
+function renderStreak(){
+  const s = computeStreak();
+  if(s >= 2){
+    streakEl.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 2s6 5 6 11a6 6 0 01-12 0c0-2 1-3 1-3s1 2 2 2c0-4 3-5 3-10z"/></svg> ${s} дн. поспіль`;
+  } else {
+    streakEl.innerHTML = '';
+  }
+}
+
+function renderBanner(){
+  if(bannerDismissed){ bannerWrap.innerHTML=''; return; }
+  const t = todayStr();
+  const critical = items.filter(i => !i.done && !i.archived && i.critical).length;
+  const overdue = items.filter(i => !i.done && !i.archived && daysOverdue(i) > 0).length;
+  if(critical === 0 && overdue === 0){ bannerWrap.innerHTML=''; return; }
+  const parts = [];
+  if(critical) parts.push(critical + ' критичн' + (critical===1?'е':'их'));
+  if(overdue) parts.push(overdue + ' простроченн' + (overdue===1?'я':'их'));
+  bannerWrap.innerHTML = `<div class="banner"><span>Сьогодні: ${parts.join(', ')}</span><button id="bannerClose">✕</button></div>`;
+  document.getElementById('bannerClose').onclick = () => { bannerDismissed = true; renderBanner(); };
+}
+
+function render(){
+  listWrap.innerHTML = '';
+  updateRing();
+  renderStats();
+  renderFilterRow();
+  renderStreak();
+  renderBanner();
+  if(meta.view === 'week') renderWeek();
+
+  const q = searchInput.value.trim().toLowerCase();
+  const t = todayStr();
+
+  let pool = items.filter(it => !it.archived || meta.showArchive);
+  pool = pool.filter(it => !it.date || it.date <= t);
+  if(filterCategory){
+    pool = pool.filter(it => it.category === filterCategory);
+  }
+  if(q){
+    pool = pool.filter(it => it.text.toLowerCase().includes(q) || (it.note||'').toLowerCase().includes(q));
+  }
+
+  let active = pool.filter(i => !i.done);
+  let done = pool.filter(i => i.done && (!i.completedAt || i.completedAt.slice(0,10) === t) && !i.archived);
+  let archived = pool.filter(i => i.archived);
+
+  active = sortItems(active);
+
+  const totalActive = items.filter(i => !i.done && !i.archived).length;
+  document.title = totalActive > 0 ? `(${totalActive}) Нагадування` : 'Нагадування';
+
+  archiveBtn.textContent = meta.showArchive ? 'Сховати архів' : 'Архів';
+
+  if(active.length === 0 && done.length === 0 && archived.length === 0){
+    listWrap.innerHTML = q
+      ? '<div class="empty"><span class="big">Нічого не знайдено</span>Спробуйте інший запит</div>'
+      : '<div class="empty"><span class="big">Поки що порожньо</span>Додайте перше нагадування вище</div>';
+    return;
+  }
+
+  if(active.length){
+    const ul = document.createElement('ul');
+    active.forEach(i => ul.appendChild(makeLi(i)));
+    listWrap.appendChild(ul);
+  } else if(!q){
+    listWrap.innerHTML += '<div class="empty"><span class="big">Усе виконано</span>Гарна робота</div>';
+  }
+
+  if(done.length){
+    const label = document.createElement('div');
+    label.className = 'section-label';
+    label.textContent = 'Виконано сьогодні';
+    listWrap.appendChild(label);
+    const ul2 = document.createElement('ul');
+    done.forEach(i => ul2.appendChild(makeLi(i)));
+    listWrap.appendChild(ul2);
+  }
+
+  if(meta.showArchive && archived.length){
+    const label = document.createElement('div');
+    label.className = 'section-label';
+    label.textContent = 'Архів';
+    listWrap.appendChild(label);
+    const ul3 = document.createElement('ul');
+    archived.forEach(i => ul3.appendChild(makeLi(i)));
+    listWrap.appendChild(ul3);
+  }
+}
+
+function sortItems(arr){
+  const copy = [...arr];
+  if(meta.sort === 'time'){
+    copy.sort((a,b) => {
+      const od = daysOverdue(b) - daysOverdue(a);
+      if(od !== 0) return od;
+      if(a.critical !== b.critical) return a.critical ? -1 : 1;
+      if(!a.time) return 1;
+      if(!b.time) return -1;
+      return a.time.localeCompare(b.time);
+    });
+  } else if(meta.sort === 'priority'){
+    copy.sort((a,b) => {
+      const od = daysOverdue(b) - daysOverdue(a);
+      if(od !== 0) return od;
+      return (b.critical?1:0) - (a.critical?1:0);
+    });
+  } else if(meta.sort === 'category'){
+    copy.sort((a,b) => {
+      const od = daysOverdue(b) - daysOverdue(a);
+      if(od !== 0) return od;
+      return a.category.localeCompare(b.category);
+    });
+  }
+  return copy;
+}
+
+sortBtn.onclick = () => {
+  const order = ['time','priority','category'];
+  const labels = {time:'За часом', priority:'За пріоритетом', category:'За категорією'};
+  const idx = order.indexOf(meta.sort);
+  meta.sort = order[(idx+1) % order.length];
+  sortLabel.textContent = labels[meta.sort];
+  saveMeta();
+  render();
+};
+sortLabel.textContent = {time:'За часом', priority:'За пріоритетом', category:'За категорією'}[meta.sort];
+
+archiveBtn.onclick = () => {
+  meta.showArchive = !meta.showArchive;
+  saveMeta();
+  render();
+};
+
+clearBtn.onclick = () => {
+  const t = todayStr();
+  let count = 0;
+  items.forEach(it => {
+    if(it.done && (!it.completedAt || it.completedAt.slice(0,10) === t) && !it.archived){
+      it.archived = true;
+      count++;
+    }
+  });
+  if(count){
+    render(); saveItems();
+    showToast(count + ' пункт(ів) перенесено в архів');
+  }
+};
+
+exportBtn.onclick = async () => {
+  const active = items.filter(i => !i.done && !i.archived);
+  const lines = active.map(i => {
+    const time = i.time ? i.time + ' — ' : '';
+    const crit = i.critical ? ' [критично]' : '';
+    return `• ${time}${i.text}${crit}`;
+  });
+  const text = 'Мої нагадування (' + fmtDate() + '):\n' + (lines.length ? lines.join('\n') : 'порожньо');
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast('Список скопійовано в буфер обміну');
+  }catch(e){
+    showToast('Не вдалося скопіювати');
+  }
+};
+
+function makeLi(item){
+  const li = document.createElement('li');
+  if(item.done) li.classList.add('done');
+  if(item.critical) li.classList.add('critical');
+  const overdue = daysOverdue(item);
+  if(overdue > 0) li.classList.add('overdue-item');
+
+  const check = document.createElement('button');
+  check.className = 'check' + (item.done ? ' done' : '');
+  check.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="4,13 9,18 20,6"/></svg>';
+  check.onclick = () => toggle(item.id);
+
+  const body = document.createElement('div');
+  body.className = 'body';
+  const meta_ = document.createElement('div');
+  meta_.className = 'meta';
+
+  const dot = document.createElement('div');
+  dot.className = 'dot';
+  dot.style.background = CATS[item.category]?.color || CATS.other.color;
+  meta_.appendChild(dot);
+
+  const catLabel = document.createElement('div');
+  catLabel.className = 'cat-label';
+  catLabel.textContent = CATS[item.category]?.label || 'Інше';
+  meta_.appendChild(catLabel);
+
+  const time = document.createElement('div');
+  time.className = 'time' + (item.time ? '' : ' none');
+  time.textContent = item.time ? item.time : 'без часу';
+  meta_.appendChild(time);
+
+  if(overdue > 0){
+    const badge = document.createElement('div');
+    badge.className = 'overdue';
+    badge.textContent = overdue === 1 ? 'прострочено 1 д.' : 'прострочено ' + overdue + ' д.';
+    meta_.appendChild(badge);
+  }
+  if(item.critical && !item.done){
+    meta_.insertAdjacentHTML('beforeend', '<svg class="bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>');
+  }
+  if(item.repeat){
+    meta_.insertAdjacentHTML('beforeend', '<svg class="repeat-ic" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>');
+  }
+
+  const text = document.createElement('div');
+  text.className = 'text';
+  text.textContent = item.text;
+  if(!item.done){
+    text.style.cursor = 'text';
+    text.onclick = () => {
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.className = 'text-edit';
+      inp.value = item.text;
+      text.replaceWith(inp);
+      inp.focus();
+      inp.select();
+      const commit = () => {
+        const v = inp.value.trim();
+        if(v){ item.text = v; saveItems(); }
+        render();
+      };
+      inp.addEventListener('blur', commit);
+      inp.addEventListener('keydown', e => { if(e.key === 'Enter') inp.blur(); });
+    };
+  }
+
+  body.appendChild(meta_);
+  body.appendChild(text);
+
+  if(item.note){
+    const note = document.createElement('div');
+    note.className = 'note';
+    note.textContent = item.note;
+    body.appendChild(note);
+  }
+
+  const actions = document.createElement('div');
+  actions.className = 'item-actions';
+
+  if(item.time && !item.done){
+    const snooze = document.createElement('button');
+    snooze.className = 'mini-btn';
+    snooze.title = 'Відкласти на годину';
+    snooze.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>';
+    snooze.onclick = () => snoozeItem(item.id);
+    actions.appendChild(snooze);
+  }
+
+  const dup = document.createElement('button');
+  dup.className = 'mini-btn';
+  dup.title = 'Дублювати';
+  dup.innerHTML = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+  dup.onclick = () => duplicateItem(item.id);
+  actions.appendChild(dup);
+
+  const del = document.createElement('button');
+  del.className = 'del';
+  del.textContent = '✕';
+  del.onclick = () => remove(item.id);
+  actions.appendChild(del);
+
+  li.appendChild(check);
+  li.appendChild(body);
+  li.appendChild(actions);
+
+  attachSwipe(li, item.id);
+  attachLongPress(body, item);
+
+  return li;
+}
+
+function snoozeItem(id){
+  const it = items.find(i => i.id === id);
+  if(!it || !it.time) return;
+  const [h,m] = it.time.split(':').map(Number);
+  const d = new Date();
+  d.setHours(h, m, 0, 0);
+  d.setMinutes(d.getMinutes() + 60);
+  it.time = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  render(); saveItems();
+  showToast('Відкладено на годину — ' + it.time);
+}
+
+function duplicateItem(id){
+  const it = items.find(i => i.id === id);
+  if(!it) return;
+  items.push(Object.assign({}, it, {id: uid(), done:false, completedAt:null, createdAt: todayStr(), date: todayStr(), archived:false}));
+  render(); saveItems();
+  showToast('Пункт дубльовано');
+}
+
+function attachLongPress(el, item){
+  let timer = null;
+  const start = () => { timer = setTimeout(() => saveAsTemplate(item), 650); };
+  const cancel = () => { clearTimeout(timer); };
+  el.addEventListener('touchstart', start, {passive:true});
+  el.addEventListener('touchend', cancel);
+  el.addEventListener('touchmove', cancel, {passive:true});
+  el.addEventListener('mousedown', start);
+  el.addEventListener('mouseup', cancel);
+  el.addEventListener('mouseleave', cancel);
+}
+
+function saveAsTemplate(item){
+  meta.customTemplates = meta.customTemplates || [];
+  if(meta.customTemplates.some(t => t.text === item.text)) return;
+  meta.customTemplates.push({text: item.text, category: item.category});
+  if(meta.customTemplates.length > 6) meta.customTemplates.shift();
+  saveMeta();
+  renderQuickChips();
+  showToast('Збережено як швидкий шаблон: ' + item.text);
+}
+
+function attachSwipe(li, id){
+  let startX = 0, curX = 0, dragging = false;
+  li.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    dragging = true;
+    li.classList.add('dragging');
+  }, {passive:true});
+  li.addEventListener('touchmove', e => {
+    if(!dragging) return;
+    curX = e.touches[0].clientX - startX;
+    if(curX < 0) li.style.transform = `translateX(${curX}px)`;
+  }, {passive:true});
+  li.addEventListener('touchend', () => {
+    dragging = false;
+    li.classList.remove('dragging');
+    if(curX < -90){
+      li.style.transform = 'translateX(-120%)';
+      setTimeout(() => remove(id), 150);
+    } else {
+      li.style.transform = '';
+    }
+    curX = 0;
+  });
+}
+
+function toggle(id){
+  const it = items.find(i => i.id === id);
+  if(it){
+    it.done = !it.done;
+    it.completedAt = it.done ? new Date().toISOString() : null;
+    render(); saveItems();
+  }
+}
+
+const toast = document.getElementById('toast');
+const toastText = document.getElementById('toastText');
+const undoBtn = document.getElementById('undoBtn');
+let lastRemoved = null, lastRemovedIdx = null, toastTimer = null;
+
+function remove(id){
+  const idx = items.findIndex(i => i.id === id);
+  if(idx === -1) return;
+  lastRemoved = items[idx];
+  lastRemovedIdx = idx;
+  items.splice(idx, 1);
+  render(); saveItems();
+  showToast('Видалено: ' + (lastRemoved.text.length > 24 ? lastRemoved.text.slice(0,24)+'…' : lastRemoved.text), true);
+}
+
+function showToast(msg, withUndo){
+  toastText.textContent = msg;
+  undoBtn.style.display = withUndo ? '' : 'none';
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { toast.classList.remove('show'); lastRemoved = null; }, 4500);
+}
+
+undoBtn.onclick = () => {
+  if(lastRemoved){
+    const idx = Math.min(lastRemovedIdx, items.length);
+    items.splice(idx, 0, lastRemoved);
+    lastRemoved = null;
+    toast.classList.remove('show');
+    clearTimeout(toastTimer);
+    render(); saveItems();
+  }
+};
+
+critBtn.onclick = () => {
+  criticalOn = !criticalOn;
+  critBtn.classList.toggle('on', criticalOn);
+  critLabel.textContent = criticalOn ? 'Критично ✓' : 'Критично';
+};
+repeatBtn.onclick = () => {
+  repeatOn = !repeatOn;
+  repeatBtn.classList.toggle('on', repeatOn);
+  repeatLabel.textContent = repeatOn ? 'Щодня ✓' : 'Щодня';
+};
+
+addBtn.onclick = () => {
+  const text = textInput.value.trim();
+  if(!text) { textInput.focus(); return; }
+  const chosenDate = dateField.value || todayStr();
+  items.push({
+    id: uid(),
+    text,
+    time: timeInput.value || '',
+    note: noteInput.value.trim(),
+    category: categorySel.value,
+    done:false,
+    critical: criticalOn,
+    repeat: repeatOn,
+    archived:false,
+    completedAt:null,
+    createdAt: todayStr(),
+    date: chosenDate
+  });
+  textInput.value = ''; timeInput.value = ''; noteInput.value = ''; dateField.value = '';
+  criticalOn = false; critBtn.classList.remove('on'); critLabel.textContent = 'Критично';
+  repeatOn = false; repeatBtn.classList.remove('on'); repeatLabel.textContent = 'Щодня';
+  render(); saveItems();
+  textInput.focus();
+};
+
+const QUICK_TEMPLATES = [
+  {text:'Нагодувати качок', category:'farm'},
+  {text:'Перевірити воду', category:'farm'},
+  {text:'Зібрати яйця', category:'farm'},
+  {text:'Записати показники', category:'farm'},
+  {text:'Перевірити температуру', category:'farm'}
+];
+
+function renderQuickChips(){
+  const row = document.getElementById('quickRow');
+  row.innerHTML = '';
+  const all = QUICK_TEMPLATES.concat(meta.customTemplates || []);
+  all.forEach(tpl => {
+    const chip = document.createElement('button');
+    chip.className = 'quick-chip';
+    chip.textContent = '+ ' + tpl.text;
+    chip.onclick = () => {
+      items.push({
+        id: uid(),
+        text: tpl.text,
+        time:'',
+        note:'',
+        category: tpl.category,
+        done:false,
+        critical:false,
+        repeat:false,
+        archived:false,
+        completedAt:null,
+        createdAt: todayStr(),
+        date: todayStr()
+      });
+      render(); saveItems();
+      showToast('Додано: ' + tpl.text);
+    };
+    row.appendChild(chip);
+  });
+}
+renderQuickChips();
+
+textInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') addBtn.click(); });
+searchInput.addEventListener('input', render);
+
+// voice input
+let recog = null, listening = false;
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if(SR){
+  recog = new SR();
+  recog.lang = 'uk-UA';
+  recog.interimResults = false;
+  recog.onresult = (e) => {
+    const said = e.results[0][0].transcript;
+    textInput.value = (textInput.value ? textInput.value + ' ' : '') + said;
+  };
+  recog.onend = () => { listening = false; micBtn.classList.remove('on'); };
+  micBtn.onclick = () => {
+    if(listening){ recog.stop(); return; }
+    listening = true;
+    micBtn.classList.add('on');
+    recog.start();
+  };
+} else {
+  micBtn.style.display = 'none';
+}
+
+load();
+</script>
+
+<div style="margin:26px 18px 40px; text-align:center;">
+  <a href="borgy.html" style="font-size:13px; font-weight:700; color:#1f6f63; text-decoration:none; border:1.5px solid currentColor; padding:10px 18px; border-radius:20px; display:inline-block;">💰 Борги та обіцянки →</a>
+</div>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>

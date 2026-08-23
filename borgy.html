@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Борги та обіцянки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef3f1;
+    --ink:#152420;
+    --ink-soft:#5c6d68;
+    --ink-faint:#8b9995;
+    --line:#dde6e2;
+    --card:#ffffff;
+    --teal:#1f6f63;
+    --teal-deep:#123f37;
+    --teal-mist:#e2efec;
+    --gold:#c8933c;
+    --gold-mist:#f8eed9;
+    --gold-deep:#8f6420;
+    --danger:#b5473a;
+    --danger-mist:#f7e6e2;
+    --shadow:0 1px 2px rgba(21,36,32,.04), 0 8px 24px -12px rgba(21,36,32,.18);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0;
+    background:var(--bg);
+    background-image:radial-gradient(circle at 100% 0%, #dfe9e5 0%, var(--bg) 45%);
+    color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  header{padding:28px 20px 14px;}
+  .eyebrow{font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--teal); font-weight:700; margin-bottom:6px;}
+  h1{margin:0; font-family:'Fraunces',serif; font-size:28px; font-weight:600; letter-spacing:-0.01em;}
+
+  .tabs{display:flex; gap:8px; margin:18px 18px 4px;}
+  .tab{
+    flex:1; text-align:center; padding:12px; border-radius:12px;
+    background:var(--card); border:1.5px solid var(--line);
+    font-weight:700; font-size:14px; color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .tab.active{background:var(--teal-deep); border-color:var(--teal-deep); color:#fff;}
+
+  .summary{
+    margin:14px 18px 4px;
+    display:flex; gap:10px;
+  }
+  .sum-card{
+    flex:1; background:var(--card); border-radius:14px; box-shadow:var(--shadow);
+    padding:13px 14px;
+  }
+  .sum-label{font-size:11px; font-weight:700; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.04em;}
+  .sum-val{font-size:19px; font-weight:700; margin-top:3px;}
+  .sum-val.owe{color:var(--danger);}
+  .sum-val.owed{color:var(--teal);}
+
+  .add-card{
+    margin:14px 18px 4px; background:var(--card); border-radius:18px; box-shadow:var(--shadow);
+    padding:16px; display:flex; flex-direction:column; gap:10px;
+  }
+  .row{display:flex; gap:8px; flex-wrap:wrap;}
+  input[type="text"], input[type="number"], input[type="date"]{
+    border:1.5px solid var(--line); border-radius:12px; padding:12px 13px;
+    font-size:15px; font-family:inherit; background:var(--bg); color:var(--ink);
+    min-width:0;
+  }
+  input:focus{outline:none; border-color:var(--teal);}
+  #personInput, #promiseText{flex:1 1 140px;}
+  #amountInput{width:110px;}
+  #dueInput, #promiseDue{width:140px;}
+
+  .dir-toggle{display:flex; gap:8px;}
+  .dir-btn{
+    flex:1; padding:11px; border-radius:11px; border:1.5px solid var(--line);
+    background:var(--bg); font-weight:700; font-size:13.5px; color:var(--ink-soft); cursor:pointer;
+  }
+  .dir-btn.active.owe{background:var(--danger-mist); border-color:var(--danger); color:var(--danger);}
+  .dir-btn.active.owed{background:var(--teal-mist); border-color:var(--teal); color:var(--teal-deep);}
+
+  .add-btn{
+    background:var(--teal-deep); color:#fff; font-weight:700; font-size:14px; font-family:inherit;
+    border:none; border-radius:12px; padding:13px; cursor:pointer;
+  }
+  .add-btn:active{transform:scale(.98);}
+
+  main{padding:16px 18px 60px;}
+  .empty{text-align:center; color:var(--ink-faint); padding:40px 10px; font-size:14.5px; line-height:1.6;}
+  .empty .big{font-size:15px; color:var(--ink-soft); font-weight:600; display:block; margin-bottom:4px;}
+
+  .section-label{font-size:11.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-faint); font-weight:700; margin:18px 3px 9px;}
+
+  ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px;}
+  li{
+    display:flex; align-items:flex-start; gap:12px;
+    background:var(--card); border-radius:14px; padding:13px 14px; box-shadow:var(--shadow);
+    border-left:3px solid transparent;
+  }
+  li.owe{border-left-color:var(--danger);}
+  li.owed{border-left-color:var(--teal);}
+  li.done{opacity:.55;}
+
+  .check{
+    width:24px; height:24px; margin-top:1px; flex:0 0 auto; border-radius:50%;
+    border:2px solid var(--teal); background:transparent;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .18s;
+  }
+  .check.done{background:var(--teal); border-color:var(--teal);}
+  .check svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:3;display:none;}
+  .check.done svg{display:block;}
+
+  .body{flex:1; min-width:0;}
+  .person{font-size:15px; font-weight:700; color:var(--ink);}
+  .amount{font-size:15px; font-weight:800; margin-top:2px;}
+  .amount.owe{color:var(--danger);}
+  .amount.owed{color:var(--teal);}
+  .text{font-size:15px; font-weight:500; color:var(--ink); margin-top:2px;}
+  li.done .person, li.done .amount, li.done .text{text-decoration:line-through; color:var(--ink-faint);}
+  .due{font-size:12px; color:var(--ink-faint); margin-top:3px; font-weight:600;}
+  .due.late{color:var(--danger);}
+
+  .del{
+    flex:0 0 auto; width:28px;height:28px; margin-top:1px; border-radius:9px; background:transparent; border:none;
+    color:var(--danger); font-size:16px; display:flex;align-items:center;justify-content:center; cursor:pointer;
+  }
+  .del:active{background:var(--danger-mist);}
+
+  .hidden{display:none !important;}
+</style>
+<meta name="theme-color" content="#123f37">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Борги та обіцянки">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Тільки для вас</div>
+  <h1>Борги та обіцянки</h1>
+</header>
+
+<div class="tabs">
+  <div class="tab active" id="tabDebts">💰 Борги</div>
+  <div class="tab" id="tabPromises">🤝 Обіцянки</div>
+</div>
+
+<!-- DEBTS -->
+<div id="debtsView">
+
+  <div class="summary">
+    <div class="sum-card">
+      <div class="sum-label">Винен я</div>
+      <div class="sum-val owe" id="sumOwe">0</div>
+    </div>
+    <div class="sum-card">
+      <div class="sum-label">Винні мені</div>
+      <div class="sum-val owed" id="sumOwed">0</div>
+    </div>
+  </div>
+
+  <div class="add-card">
+    <div class="row">
+      <input type="text" id="personInput" placeholder="Кому/від кого" maxlength="60">
+      <input type="number" id="amountInput" placeholder="Сума">
+      <input type="date" id="dueInput">
+    </div>
+    <div class="dir-toggle">
+      <button class="dir-btn owe active" id="dirOwe">Я винен</button>
+      <button class="dir-btn owed" id="dirOwed">Мені винні</button>
+    </div>
+    <button class="add-btn" id="addDebtBtn">Додати борг</button>
+  </div>
+
+  <main><div id="debtsWrap"></div></main>
+</div>
+
+<!-- PROMISES -->
+<div id="promisesView" class="hidden">
+
+  <div class="add-card">
+    <div class="row">
+      <input type="text" id="promisePerson" placeholder="Кому обіцяв" maxlength="60">
+    </div>
+    <div class="row">
+      <input type="text" id="promiseText" placeholder="Що саме" maxlength="160">
+      <input type="date" id="promiseDue">
+    </div>
+    <button class="add-btn" id="addPromiseBtn">Додати обіцянку</button>
+  </div>
+
+  <main><div id="promisesWrap"></div></main>
+</div>
+
+<script>
+/* Шар збереження: у Клоді використовує window.storage,
+   на телефоні (встановлений додаток) — localStorage. */
+if (!window.storage) {
+  window.storage = {
+    async get(key){
+      const v = localStorage.getItem(key);
+      if (v === null) throw new Error('key not found: ' + key);
+      return { key, value: v, shared: false };
+    },
+    async set(key, value){
+      localStorage.setItem(key, String(value));
+      return { key, value, shared: false };
+    },
+    async delete(key){
+      localStorage.removeItem(key);
+      return { key, deleted: true, shared: false };
+    },
+    async list(prefix){
+      const keys = [];
+      for (let i = 0; i < localStorage.length; i++){
+        const k = localStorage.key(i);
+        if (!prefix || k.startsWith(prefix)) keys.push(k);
+      }
+      return { keys, prefix: prefix || '', shared: false };
+    }
+  };
+}
+</script>
+<script>
+const DEBTS_KEY = 'debts';
+const PROMISES_KEY = 'promises';
+let debts = [];
+let promises = [];
+let dir = 'owe';
+
+const tabDebts = document.getElementById('tabDebts');
+const tabPromises = document.getElementById('tabPromises');
+const debtsView = document.getElementById('debtsView');
+const promisesView = document.getElementById('promisesView');
+
+tabDebts.onclick = () => { tabDebts.classList.add('active'); tabPromises.classList.remove('active'); debtsView.classList.remove('hidden'); promisesView.classList.add('hidden'); };
+tabPromises.onclick = () => { tabPromises.classList.add('active'); tabDebts.classList.remove('active'); promisesView.classList.remove('hidden'); debtsView.classList.add('hidden'); };
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+async function load(){
+  try{
+    const [r1, r2] = await Promise.allSettled([
+      window.storage.get(DEBTS_KEY, false),
+      window.storage.get(PROMISES_KEY, false)
+    ]);
+    debts = (r1.status==='fulfilled' && r1.value && r1.value.value) ? JSON.parse(r1.value.value) : [];
+    promises = (r2.status==='fulfilled' && r2.value && r2.value.value) ? JSON.parse(r2.value.value) : [];
+  }catch(e){}
+  renderDebts();
+  renderPromises();
+}
+async function saveDebts(){ try{ await window.storage.set(DEBTS_KEY, JSON.stringify(debts), false); }catch(e){} }
+async function savePromises(){ try{ await window.storage.set(PROMISES_KEY, JSON.stringify(promises), false); }catch(e){} }
+
+// ---- DEBTS ----
+document.getElementById('dirOwe').onclick = () => { dir='owe'; document.getElementById('dirOwe').classList.add('active'); document.getElementById('dirOwed').classList.remove('active'); };
+document.getElementById('dirOwed').onclick = () => { dir='owed'; document.getElementById('dirOwed').classList.add('active'); document.getElementById('dirOwe').classList.remove('active'); };
+
+document.getElementById('addDebtBtn').onclick = () => {
+  const person = document.getElementById('personInput').value.trim();
+  const amount = parseFloat(document.getElementById('amountInput').value);
+  const due = document.getElementById('dueInput').value;
+  if(!person || !amount) return;
+  debts.push({ id: uid(), person, amount, dir, due, done:false, createdAt: todayStr() });
+  document.getElementById('personInput').value = '';
+  document.getElementById('amountInput').value = '';
+  document.getElementById('dueInput').value = '';
+  renderDebts(); saveDebts();
+};
+
+function renderDebts(){
+  const wrap = document.getElementById('debtsWrap');
+  wrap.innerHTML = '';
+
+  const activeOwe = debts.filter(d => !d.done && d.dir==='owe').reduce((s,d)=>s+d.amount,0);
+  const activeOwed = debts.filter(d => !d.done && d.dir==='owed').reduce((s,d)=>s+d.amount,0);
+  document.getElementById('sumOwe').textContent = activeOwe.toLocaleString('uk-UA');
+  document.getElementById('sumOwed').textContent = activeOwed.toLocaleString('uk-UA');
+
+  const active = debts.filter(d => !d.done).sort((a,b) => (a.due||'9999').localeCompare(b.due||'9999'));
+  const done = debts.filter(d => d.done);
+
+  if(active.length===0 && done.length===0){
+    wrap.innerHTML = '<div class="empty"><span class="big">Поки що порожньо</span>Додайте перший борг вище</div>';
+    return;
+  }
+
+  if(active.length){
+    const ul = document.createElement('ul');
+    active.forEach(d => ul.appendChild(makeDebtLi(d)));
+    wrap.appendChild(ul);
+  }
+  if(done.length){
+    const label = document.createElement('div');
+    label.className = 'section-label';
+    label.textContent = 'Закрито';
+    wrap.appendChild(label);
+    const ul2 = document.createElement('ul');
+    done.forEach(d => ul2.appendChild(makeDebtLi(d)));
+    wrap.appendChild(ul2);
+  }
+}
+
+function makeDebtLi(d){
+  const li = document.createElement('li');
+  li.classList.add(d.dir);
+  if(d.done) li.classList.add('done');
+
+  const check = document.createElement('button');
+  check.className = 'check' + (d.done ? ' done' : '');
+  check.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="4,13 9,18 20,6"/></svg>';
+  check.onclick = () => { d.done = !d.done; renderDebts(); saveDebts(); };
+
+  const body = document.createElement('div');
+  body.className = 'body';
+  const person = document.createElement('div');
+  person.className = 'person';
+  person.textContent = d.person;
+  const amount = document.createElement('div');
+  amount.className = 'amount ' + d.dir;
+  amount.textContent = (d.dir==='owe' ? '− ' : '+ ') + d.amount.toLocaleString('uk-UA');
+  body.appendChild(person);
+  body.appendChild(amount);
+  if(d.due){
+    const due = document.createElement('div');
+    const late = !d.done && d.due < todayStr();
+    due.className = 'due' + (late ? ' late' : '');
+    due.textContent = (late ? 'прострочено — ' : 'до ') + d.due;
+    body.appendChild(due);
+  }
+
+  const del = document.createElement('button');
+  del.className = 'del';
+  del.textContent = '✕';
+  del.onclick = () => { debts = debts.filter(x => x.id !== d.id); renderDebts(); saveDebts(); };
+
+  li.appendChild(check);
+  li.appendChild(body);
+  li.appendChild(del);
+  return li;
+}
+
+// ---- PROMISES ----
+document.getElementById('addPromiseBtn').onclick = () => {
+  const person = document.getElementById('promisePerson').value.trim();
+  const text = document.getElementById('promiseText').value.trim();
+  const due = document.getElementById('promiseDue').value;
+  if(!text) return;
+  promises.push({ id: uid(), person, text, due, done:false, createdAt: todayStr() });
+  document.getElementById('promisePerson').value = '';
+  document.getElementById('promiseText').value = '';
+  document.getElementById('promiseDue').value = '';
+  renderPromises(); savePromises();
+};
+
+function renderPromises(){
+  const wrap = document.getElementById('promisesWrap');
+  wrap.innerHTML = '';
+
+  const active = promises.filter(p => !p.done).sort((a,b) => (a.due||'9999').localeCompare(b.due||'9999'));
+  const done = promises.filter(p => p.done);
+
+  if(active.length===0 && done.length===0){
+    wrap.innerHTML = '<div class="empty"><span class="big">Поки що порожньо</span>Додайте першу обіцянку вище</div>';
+    return;
+  }
+
+  if(active.length){
+    const ul = document.createElement('ul');
+    active.forEach(p => ul.appendChild(makePromiseLi(p)));
+    wrap.appendChild(ul);
+  }
+  if(done.length){
+    const label = document.createElement('div');
+    label.className = 'section-label';
+    label.textContent = 'Виконано';
+    wrap.appendChild(label);
+    const ul2 = document.createElement('ul');
+    done.forEach(p => ul2.appendChild(makePromiseLi(p)));
+    wrap.appendChild(ul2);
+  }
+}
+
+function makePromiseLi(p){
+  const li = document.createElement('li');
+  if(p.done) li.classList.add('done');
+
+  const check = document.createElement('button');
+  check.className = 'check' + (p.done ? ' done' : '');
+  check.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="4,13 9,18 20,6"/></svg>';
+  check.onclick = () => { p.done = !p.done; renderPromises(); savePromises(); };
+
+  const body = document.createElement('div');
+  body.className = 'body';
+  if(p.person){
+    const person = document.createElement('div');
+    person.className = 'person';
+    person.textContent = p.person;
+    body.appendChild(person);
+  }
+  const text = document.createElement('div');
+  text.className = 'text';
+  text.textContent = p.text;
+  body.appendChild(text);
+  if(p.due){
+    const due = document.createElement('div');
+    const late = !p.done && p.due < todayStr();
+    due.className = 'due' + (late ? ' late' : '');
+    due.textContent = (late ? 'прострочено — ' : 'до ') + p.due;
+    body.appendChild(due);
+  }
+
+  const del = document.createElement('button');
+  del.className = 'del';
+  del.textContent = '✕';
+  del.onclick = () => { promises = promises.filter(x => x.id !== p.id); renderPromises(); savePromises(); };
+
+  li.appendChild(check);
+  li.appendChild(body);
+  li.appendChild(del);
+  return li;
+}
+
+load();
+</script>
+
+<div style="margin:26px 18px 40px; text-align:center;">
+  <a href="index.html" style="font-size:13px; font-weight:700; color:#1f6f63; text-decoration:none; border:1.5px solid currentColor; padding:10px 18px; border-radius:20px; display:inline-block;">← 🔔 Нагадування</a>
+</div>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
